@@ -1,4 +1,4 @@
-import { GoogleGenAI } from '@google/generative-ai';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 import fs from 'fs';
 import path from 'path';
 
@@ -19,8 +19,10 @@ export default async function handler(req, res) {
     const knowledgeRaw = fs.readFileSync(knowledgePath, 'utf8');
     const mateKnowledge = JSON.parse(knowledgeRaw);
 
-    const ai = new GoogleGenAI({ apiKey });
-    // 최신 고성능 모델 적용 (요청하신 gemini-3.1-pro 반영)
+    // 🌟 오류 해결 파트: 정확한 라이브러리 명칭(GoogleGenerativeAI) 사용 및 키 전달 방식 수정
+    const ai = new GoogleGenerativeAI(apiKey);
+    
+    // 대표님께서 요청하신 최신 모델 적용
     const model = ai.getGenerativeModel({ model: 'gemini-3.1-pro' });
 
     let categoryPrompt = '';
