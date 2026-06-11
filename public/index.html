@@ -80,6 +80,16 @@
 
       <div id="contentPreview" class="prose max-w-none border border-[#DADADA] rounded-xl p-6 bg-white min-h-[400px]"></div>
       <textarea id="contentSource" readonly class="hidden w-full font-mono text-sm border border-[#DADADA] rounded-xl p-6 bg-[#EEEEEE] text-[#171717] min-h-[400px]"></textarea>
+
+      <div class="flex gap-4 mt-6 pt-6 border-t border-[#DADADA]">
+        <button id="regenerateBtn" type="button" class="flex-1 bg-white border border-[#DADADA] hover:bg-gray-50 text-[#171717] font-bold py-3 px-4 rounded-lg transition-colors shadow-sm">
+          🔄 다른 버전으로 생성하기
+        </button>
+        <button id="resetBtn" type="button" class="flex-1 bg-[#171717] hover:bg-[#434343] text-white font-bold py-3 px-4 rounded-lg transition-colors shadow-sm">
+          🗑️ 초기화 (새로 만들기)
+        </button>
+      </div>
+
     </div>
   </div>
 
@@ -102,122 +112,4 @@
             const canvas = document.createElement('canvas');
             const MAX_WIDTH = 1024;
             let width = img.width, height = img.height;
-            if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
-            canvas.width = width; canvas.height = height;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0, width, height);
-            resolve({ data: canvas.toDataURL('image/jpeg', 0.8), mimeType: 'image/jpeg' });
-          };
-        };
-      });
-    };
-
-    imageInput.addEventListener('change', async (e) => {
-      for (let file of e.target.files) {
-        selectedImages.push(file);
-        const compressed = await resizeImage(file);
-        compressedImagesData.push(compressed);
-      }
-      renderPreviews();
-      imageInput.value = "";
-    });
-
-    function renderPreviews() {
-      previewContainer.innerHTML = "";
-      if (compressedImagesData.length === 0) {
-        previewContainer.appendChild(previewPlaceholder);
-        return;
-      }
-      compressedImagesData.forEach((img, index) => {
-        const div = document.createElement('div');
-        div.className = "relative w-24 h-24 shadow-sm rounded-lg border border-[#DADADA] bg-white p-1";
-        div.innerHTML = `
-          <img src="${img.data}" class="w-full h-full object-cover rounded-md">
-          <button type="button" onclick="removeImage(${index})" class="absolute -top-2 -right-2 bg-[#171717] text-[#FCF56A] rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold hover:bg-black shadow-md transition-colors">X</button>
-        `;
-        previewContainer.appendChild(div);
-      });
-    }
-
-    window.removeImage = function(index) {
-      selectedImages.splice(index, 1);
-      compressedImagesData.splice(index, 1);
-      renderPreviews();
-    };
-
-    const form = document.getElementById('generatorForm');
-    let finalHtmlSource = "";
-
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      document.getElementById('submitBtn').disabled = true;
-      document.getElementById('loading').classList.remove('hidden');
-      document.getElementById('resultArea').classList.add('hidden');
-
-      const category = document.querySelector('input[name="category"]:checked').value;
-      const title = document.getElementById('title').value;
-      const additionalRequests = document.getElementById('additionalRequests').value;
-
-      try {
-        const response = await fetch('/api/generate', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ category, title, additionalRequests, images: compressedImagesData })
-        });
-
-        const result = await response.json();
-        if (!response.ok) throw new Error(result.error);
-
-        let aiHtml = result.html;
-
-        let previewHtml = aiHtml;
-        let sourceCodeHtml = aiHtml;
-
-        compressedImagesData.forEach((img, index) => {
-          const targetStr = `IMAGE_${index}`;
-          previewHtml = previewHtml.replace(targetStr, img.data);
-          sourceCodeHtml = sourceCodeHtml.replace(targetStr, `[아임웹 에디터에서 ${index + 1}번째 이미지 원본을 직접 업로드해주세요]`);
-        });
-
-        finalHtmlSource = sourceCodeHtml;
-        document.getElementById('contentPreview').innerHTML = previewHtml;
-        document.getElementById('contentSource').value = sourceCodeHtml;
-
-        document.getElementById('loading').classList.add('hidden');
-        document.getElementById('resultArea').classList.remove('hidden');
-      } catch (error) {
-        alert(error.message);
-        document.getElementById('loading').classList.add('hidden');
-      } finally {
-        document.getElementById('submitBtn').disabled = false;
-      }
-    });
-
-    const tabPreview = document.getElementById('tabPreview');
-    const tabSource = document.getElementById('tabSource');
-    const contentPreview = document.getElementById('contentPreview');
-    const contentSource = document.getElementById('contentSource');
-
-    tabPreview.addEventListener('click', () => {
-      tabPreview.className = "px-4 py-1.5 text-sm font-bold rounded-md bg-white shadow-sm text-[#171717]";
-      tabSource.className = "px-4 py-1.5 text-sm font-bold rounded-md text-[#434343] hover:text-[#171717]";
-      contentPreview.classList.remove('hidden');
-      contentSource.classList.add('hidden');
-    });
-
-    tabSource.addEventListener('click', () => {
-      tabSource.className = "px-4 py-1.5 text-sm font-bold rounded-md bg-white shadow-sm text-[#171717]";
-      tabPreview.className = "px-4 py-1.5 text-sm font-bold rounded-md text-[#434343] hover:text-[#171717]";
-      contentSource.className = "px-4 py-1.5 text-sm font-bold rounded-md text-[#434343] hover:text-[#171717]";
-      contentSource.classList.remove('hidden');
-      contentPreview.classList.add('hidden');
-    });
-
-    document.getElementById('copyBtn').addEventListener('click', () => {
-      navigator.clipboard.writeText(finalHtmlSource).then(() => {
-        alert("코드가 복사되었습니다! 아임웹 소스코드(HTML) 모드에 붙여넣으시고, 안내된 위치에 이미지를 업로드하세요.");
-      });
-    });
-  </script>
-</body>
-</html>
+            if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH;
