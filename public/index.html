@@ -3,90 +3,94 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MATE 콘텐츠 AI 생성기</title>
+  <title>메이트 블로그 콘텐츠 생성기</title>
+  <link rel="icon" type="image/png" href="/mate-favicon.png">
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-50 min-h-screen py-10 px-4 font-sans">
-  <div class="max-w-4xl mx-auto bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
-    <h1 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
-      📝 MATE 스마트 블로그 메이커
-    </h1>
+<body class="bg-[#EEEEEE] min-h-screen py-10 px-4 font-sans text-[#171717]">
+  <div class="max-w-4xl mx-auto bg-white rounded-2xl shadow-md border border-[#DADADA] p-8">
+    
+    <div class="flex items-center gap-3 mb-8 pb-4 border-b border-[#DADADA]">
+      <img src="/mate-symbol.png" alt="MATE Logo" class="h-10 object-contain">
+      <h1 class="text-2xl font-extrabold text-[#171717]">
+        메이트 블로그 콘텐츠 생성기
+      </h1>
+    </div>
 
     <form id="generatorForm" class="space-y-6">
       <div>
-        <label class="block text-sm font-semibold text-gray-700 mb-2">1. 게시판 선택</label>
+        <label class="block text-sm font-bold text-[#434343] mb-2">1. 게시판 선택</label>
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <label class="border rounded-lg p-3 flex items-center gap-2 cursor-pointer hover:bg-gray-50">
-            <input type="radio" name="category" value="도입사례" checked class="text-blue-600"> <span class="text-sm font-medium">도입 사례</span>
+          <label class="border border-[#DADADA] rounded-lg p-3 flex items-center gap-2 cursor-pointer hover:bg-gray-50 transition-colors">
+            <input type="radio" name="category" value="도입사례" checked class="text-[#171717] focus:ring-[#FCF56A]"> <span class="text-sm font-medium">도입 사례</span>
           </label>
-          <label class="border rounded-lg p-3 flex items-center gap-2 cursor-pointer hover:bg-gray-50">
-            <input type="radio" name="category" value="메이트소식" class="text-blue-600"> <span class="text-sm font-medium">메이트 소식</span>
+          <label class="border border-[#DADADA] rounded-lg p-3 flex items-center gap-2 cursor-pointer hover:bg-gray-50 transition-colors">
+            <input type="radio" name="category" value="메이트소식" class="text-[#171717] focus:ring-[#FCF56A]"> <span class="text-sm font-medium">메이트 소식</span>
           </label>
-          <label class="border rounded-lg p-3 flex items-center gap-2 cursor-pointer hover:bg-gray-50">
-            <input type="radio" name="category" value="메이트TV" class="text-blue-600"> <span class="text-sm font-medium">메이트 TV</span>
+          <label class="border border-[#DADADA] rounded-lg p-3 flex items-center gap-2 cursor-pointer hover:bg-gray-50 transition-colors">
+            <input type="radio" name="category" value="메이트TV" class="text-[#171717] focus:ring-[#FCF56A]"> <span class="text-sm font-medium">메이트 TV</span>
           </label>
-          <label class="border rounded-lg p-3 flex items-center gap-2 cursor-pointer hover:bg-gray-50">
-            <input type="radio" name="category" value="기타" class="text-blue-600"> <span class="text-sm font-medium">기타 (범용)</span>
+          <label class="border border-[#DADADA] rounded-lg p-3 flex items-center gap-2 cursor-pointer hover:bg-gray-50 transition-colors">
+            <input type="radio" name="category" value="기타" class="text-[#171717] focus:ring-[#FCF56A]"> <span class="text-sm font-medium">기타 (범용)</span>
           </label>
         </div>
       </div>
 
       <div>
-        <label for="title" class="block text-sm font-semibold text-gray-700 mb-2">2. 초안 제목 (AI가 더 멋지게 변경해 줍니다)</label>
-        <input type="text" id="title" required placeholder="예: 역삼동 마라탕집 메이트 포스기 설치한 이야기" 
-          class="w-full border rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+        <label for="title" class="block text-sm font-bold text-[#434343] mb-2">2. 콘텐츠 제목 초안 (AI가 더 멋지게 변경해 줍니다)</label>
+        <input type="text" id="title" required placeholder="예: 강남 피자 맛집 OOO의 메이트 QR오더 도입 후기" 
+          class="w-full border border-[#DADADA] rounded-lg p-3 text-sm focus:ring-2 focus:ring-[#FCF56A] focus:border-[#FCF56A] outline-none transition-all">
       </div>
 
       <div>
-        <label for="additionalRequests" class="block text-sm font-semibold text-gray-700 mb-2">3. 추가 정보 입력 (방향성, 수치, 인터뷰 등)</label>
-        <textarea id="additionalRequests" rows="4" required placeholder="예: 피크타임 대기시간이 20분에서 5분으로 줄었다는 점 강조. 사장님이 '알바생 구하기 힘들었는데 QR오더 덕에 살았다'고 말씀하심." 
-          class="w-full border rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none"></textarea>
+        <label for="additionalRequests" class="block text-sm font-bold text-[#434343] mb-2">3. 추가 정보 입력 (콘텐츠 방향성, 추가 요청 사항 등)</label>
+        <textarea id="additionalRequests" rows="4" required placeholder="예: 매장명, 사장님과의 인터뷰 내용, 어떤 부분을 강조했으면 좋겠는지, 꼭 들어가야 하는 문구나 내용 등" 
+          class="w-full border border-[#DADADA] rounded-lg p-3 text-sm focus:ring-2 focus:ring-[#FCF56A] focus:border-[#FCF56A] outline-none transition-all"></textarea>
       </div>
 
       <div>
-        <label class="block text-sm font-semibold text-gray-700 mb-2">4. 이미지 업로드 (업로드 순서대로 본문에 배치됩니다)</label>
-        <input type="file" id="imageInput" multiple accept="image/*" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer mb-3">
+        <label class="block text-sm font-bold text-[#434343] mb-2">4. 이미지 업로드 (AI가 맥락에 맞춰 자유롭게 배치합니다)</label>
+        <input type="file" id="imageInput" multiple accept="image/*" class="block w-full text-sm text-[#434343] file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#EEEEEE] file:text-[#171717] hover:file:bg-[#DADADA] cursor-pointer mb-3 transition-colors">
         
-        <div id="previewContainer" class="flex flex-wrap gap-4 mt-2 p-4 bg-gray-50 rounded-lg min-h-[100px] border border-dashed border-gray-300">
+        <div id="previewContainer" class="flex flex-wrap gap-4 mt-2 p-4 bg-gray-50 rounded-lg min-h-[100px] border border-dashed border-[#DADADA]">
           <p class="text-xs text-gray-400 w-full text-center my-auto" id="previewPlaceholder">선택된 이미지가 없습니다.</p>
         </div>
       </div>
 
-      <button type="submit" id="submitBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition-colors">
+      <button type="submit" id="submitBtn" class="w-full bg-[#FCF56A] hover:bg-[#eade58] text-[#171717] font-extrabold py-3 px-4 rounded-lg transition-colors shadow-sm">
         ✨ AI 콘텐츠 생성하기
       </button>
     </form>
 
     <div id="loading" class="hidden mt-8 text-center py-8">
-      <div class="animate-spin inline-block w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full mb-3"></div>
-      <p class="text-sm font-medium text-gray-600">AI가 이미지를 분석하고 MATE의 톤앤매너로 글을 작성 중입니다...</p>
+      <div class="animate-spin inline-block w-8 h-8 border-4 border-[#171717] border-t-transparent rounded-full mb-3"></div>
+      <p class="text-sm font-bold text-[#434343]">AI가 이미지를 분석하고 MATE의 톤앤매너로 글을 작성 중입니다...</p>
     </div>
 
-    <div id="resultArea" class="hidden mt-10 border-t border-gray-200 pt-8">
+    <div id="resultArea" class="hidden mt-10 border-t border-[#DADADA] pt-8">
       <div class="flex justify-between items-center mb-4">
-        <div class="flex gap-2 bg-gray-100 p-1 rounded-lg">
-          <button id="tabPreview" class="px-4 py-1.5 text-sm font-medium rounded-md bg-white shadow-sm text-gray-800">결과 미리보기</button>
-          <button id="tabSource" class="px-4 py-1.5 text-sm font-medium rounded-md text-gray-500 hover:text-gray-800">HTML 소스코드</button>
+        <div class="flex gap-2 bg-[#EEEEEE] p-1 rounded-lg">
+          <button id="tabPreview" class="px-4 py-1.5 text-sm font-bold rounded-md bg-white shadow-sm text-[#171717]">결과 미리보기</button>
+          <button id="tabSource" class="px-4 py-1.5 text-sm font-bold rounded-md text-[#434343] hover:text-[#171717]">HTML 소스코드</button>
         </div>
-        <button id="copyBtn" class="bg-gray-800 hover:bg-gray-900 text-white text-xs font-semibold py-2 px-4 rounded-md">
+        <button id="copyBtn" class="bg-[#171717] hover:bg-[#434343] text-[#FCF56A] text-xs font-bold py-2 px-4 rounded-md transition-colors">
           📋 코드 복사
         </button>
       </div>
 
-      <div id="contentPreview" class="prose max-w-none border border-gray-200 rounded-xl p-6 bg-white min-h-[400px]"></div>
-      <textarea id="contentSource" readonly class="hidden w-full font-mono text-sm border border-gray-200 rounded-xl p-6 bg-gray-50 text-gray-700 min-h-[400px]"></textarea>
+      <div id="contentPreview" class="prose max-w-none border border-[#DADADA] rounded-xl p-6 bg-white min-h-[400px]"></div>
+      <textarea id="contentSource" readonly class="hidden w-full font-mono text-sm border border-[#DADADA] rounded-xl p-6 bg-[#EEEEEE] text-[#171717] min-h-[400px]"></textarea>
     </div>
   </div>
 
   <script>
-    let selectedImages = []; // 사용자가 선택한 원본 이미지 파일 배열
-    let compressedImagesData = []; // API 전송 및 미리보기를 위한 Base64 데이터 배열
+    let selectedImages = [];
+    let compressedImagesData = [];
 
     const imageInput = document.getElementById('imageInput');
     const previewContainer = document.getElementById('previewContainer');
     const previewPlaceholder = document.getElementById('previewPlaceholder');
 
-    // 이미지 압축 함수
     const resizeImage = (file) => {
       return new Promise((resolve) => {
         const reader = new FileReader();
@@ -108,7 +112,6 @@
       });
     };
 
-    // 이미지 선택 시 미리보기 렌더링
     imageInput.addEventListener('change', async (e) => {
       for (let file of e.target.files) {
         selectedImages.push(file);
@@ -116,7 +119,7 @@
         compressedImagesData.push(compressed);
       }
       renderPreviews();
-      imageInput.value = ""; // 동일 파일 연속 업로드를 위해 초기화
+      imageInput.value = "";
     });
 
     function renderPreviews() {
@@ -127,10 +130,10 @@
       }
       compressedImagesData.forEach((img, index) => {
         const div = document.createElement('div');
-        div.className = "relative w-24 h-24 shadow-sm rounded-lg border border-gray-200 bg-white p-1";
+        div.className = "relative w-24 h-24 shadow-sm rounded-lg border border-[#DADADA] bg-white p-1";
         div.innerHTML = `
           <img src="${img.data}" class="w-full h-full object-cover rounded-md">
-          <button type="button" onclick="removeImage(${index})" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold hover:bg-red-600 shadow-md">X</button>
+          <button type="button" onclick="removeImage(${index})" class="absolute -top-2 -right-2 bg-[#171717] text-[#FCF56A] rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold hover:bg-black shadow-md transition-colors">X</button>
         `;
         previewContainer.appendChild(div);
       });
@@ -142,7 +145,6 @@
       renderPreviews();
     };
 
-    // 폼 제출 로직
     const form = document.getElementById('generatorForm');
     let finalHtmlSource = "";
 
@@ -168,9 +170,7 @@
 
         let aiHtml = result.html;
 
-        // 1. 시각적 미리보기용 HTML (Base64 이미지 데이터 직접 삽입)
         let previewHtml = aiHtml;
-        // 2. 아임웹 복사용 HTML 소스코드 (이미지 위치만 텍스트로 안내하여 가독성 확보)
         let sourceCodeHtml = aiHtml;
 
         compressedImagesData.forEach((img, index) => {
@@ -193,22 +193,22 @@
       }
     });
 
-    // 탭 및 복사 버튼 로직
     const tabPreview = document.getElementById('tabPreview');
     const tabSource = document.getElementById('tabSource');
     const contentPreview = document.getElementById('contentPreview');
     const contentSource = document.getElementById('contentSource');
 
     tabPreview.addEventListener('click', () => {
-      tabPreview.className = "px-4 py-1.5 text-sm font-medium rounded-md bg-white shadow-sm text-gray-800";
-      tabSource.className = "px-4 py-1.5 text-sm font-medium rounded-md text-gray-500 hover:text-gray-800";
+      tabPreview.className = "px-4 py-1.5 text-sm font-bold rounded-md bg-white shadow-sm text-[#171717]";
+      tabSource.className = "px-4 py-1.5 text-sm font-bold rounded-md text-[#434343] hover:text-[#171717]";
       contentPreview.classList.remove('hidden');
       contentSource.classList.add('hidden');
     });
 
     tabSource.addEventListener('click', () => {
-      tabSource.className = "px-4 py-1.5 text-sm font-medium rounded-md bg-white shadow-sm text-gray-800";
-      tabPreview.className = "px-4 py-1.5 text-sm font-medium rounded-md text-gray-500 hover:text-gray-800";
+      tabSource.className = "px-4 py-1.5 text-sm font-bold rounded-md bg-white shadow-sm text-[#171717]";
+      tabPreview.className = "px-4 py-1.5 text-sm font-bold rounded-md text-[#434343] hover:text-[#171717]";
+      contentSource.className = "px-4 py-1.5 text-sm font-bold rounded-md text-[#434343] hover:text-[#171717]";
       contentSource.classList.remove('hidden');
       contentPreview.classList.add('hidden');
     });
