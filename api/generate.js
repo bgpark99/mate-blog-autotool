@@ -2,7 +2,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import fs from 'fs';
 import path from 'path';
 
-// 🌟 핵심 해결 코드: Vercel 서버의 강제 종료 시간을 10초에서 60초로 연장합니다.
+// Vercel 서버의 강제 종료 시간을 60초로 연장
 export const maxDuration = 60;
 
 export const config = {
@@ -24,8 +24,8 @@ export default async function handler(req, res) {
 
     const ai = new GoogleGenerativeAI(apiKey);
     
-    // 대표님께서 요청하신 gemini-2.5-pro 모델 적용
-    const model = ai.getGenerativeModel({ model: 'gemini-2.5-pro' });
+    // 🌟 오류 해결: 무료 API 키로 접근 가능한 최고 성능 모델로 변경
+    const model = ai.getGenerativeModel({ model: 'gemini-1.5-pro' });
 
     let categoryPrompt = '';
     if (category === '도입사례') {
