@@ -25,7 +25,7 @@ export default async function handler(req, res) {
     const ai = new GoogleGenerativeAI(apiKey);
     
     // 🌟 오류 해결: 무료 API 키로 접근 가능한 최고 성능 모델로 변경
-    const model = ai.getGenerativeModel({ model: 'gemini-1.5-pro' });
+    const model = ai.getGenerativeModel({ model: 'gemini-3.5-flash' });
 
     let categoryPrompt = '';
     if (category === '도입사례') {
