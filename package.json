@@ -1,0 +1,11 @@
+{
+  "name": "mate-blog-autotool",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "echo 'Vercel will handle this automatically'"
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.2.0"
+  }
+}
