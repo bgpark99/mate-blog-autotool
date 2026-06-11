@@ -99,17 +99,59 @@
 
     const imageInput = document.getElementById('imageInput');
     const previewContainer = document.getElementById('previewContainer');
-    const previewPlaceholder = document.getElementById('previewPlaceholder');
 
+    // 🌟 이미지를 캔버스로 변환하여 용량을 줄이는 로직 (에러 방어 코드 완벽 추가)
     const resizeImage = (file) => {
       return new Promise((resolve) => {
         const reader = new FileReader();
         reader.readAsDataURL(file);
         reader.onload = (event) => {
           const img = new Image();
-          img.src = event.target.result;
           img.onload = () => {
             const canvas = document.createElement('canvas');
             const MAX_WIDTH = 1024;
             let width = img.width, height = img.height;
-            if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH;
+            if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
+            canvas.width = width; canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+            resolve({ data: canvas.toDataURL('image/jpeg', 0.8), mimeType: 'image/jpeg' });
+          };
+          // HEIC 등 브라우저가 그릴 수 없는 이미지일 경우, 멈추지 않고 원본 그대로 통과시킴
+          img.onerror = () => {
+            resolve({ data: event.target.result, mimeType: file.type || 'image/jpeg' });
+          };
+          img.src = event.target.result;
+        };
+      });
+    };
+
+    // 이미지 다중 업로드 감지
+    imageInput.addEventListener('change', async (e) => {
+      if (e.target.files.length === 0) return;
+
+      // 이미지가 많을 때를 대비해 로딩 안내 문구 노출
+      previewContainer.innerHTML = `<p class="text-sm text-blue-500 font-bold w-full text-center my-auto animate-pulse">이미지 최적화 중입니다. 잠시만 기다려주세요...</p>`;
+      
+      for (let file of e.target.files) {
+        selectedImages.push(file);
+        const compressed = await resizeImage(file);
+        compressedImagesData.push(compressed);
+      }
+      renderPreviews();
+      // 입력창을 리셋하여 나중에 동일한 이름의 파일도 다시 추가할 수 있도록 함
+      imageInput.value = "";
+    });
+
+    // 화면에 미리보기 썸네일 그리기
+    function renderPreviews() {
+      previewContainer.innerHTML = "";
+      if (compressedImagesData.length === 0) {
+        previewContainer.innerHTML = `<p class="text-xs text-gray-400 w-full text-center my-auto" id="previewPlaceholder">선택된 이미지가 없습니다.</p>`;
+        return;
+      }
+      compressedImagesData.forEach((img, index) => {
+        const div = document.createElement('div');
+        div.className = "relative w-24 h-24 shadow-sm rounded-lg border border-[#DADADA] bg-white p-1";
+        div.innerHTML = `
+          <img src="${
