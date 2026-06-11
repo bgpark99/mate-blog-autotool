@@ -19,11 +19,10 @@ export default async function handler(req, res) {
     const knowledgeRaw = fs.readFileSync(knowledgePath, 'utf8');
     const mateKnowledge = JSON.parse(knowledgeRaw);
 
-    // 🌟 오류 해결 파트: 정확한 라이브러리 명칭(GoogleGenerativeAI) 사용 및 키 전달 방식 수정
     const ai = new GoogleGenerativeAI(apiKey);
     
-    // 대표님께서 요청하신 최신 모델 적용
-    const model = ai.getGenerativeModel({ model: 'gemini-3.1-pro' });
+    // 🌟 오류 해결: 2026년 기준 정확한 API 모델 ID(gemini-3.1-pro-preview) 적용
+    const model = ai.getGenerativeModel({ model: 'gemini-3.1-pro-preview' });
 
     let categoryPrompt = '';
     if (category === '도입사례') {
