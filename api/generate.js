@@ -45,8 +45,19 @@ export default async function handler(req, res) {
       categoryPrompt = `- [콘셉트]: 특정 형식에 얽매이지 않는 범용적이고 자유로운 주제의 블로그 콘텐츠\n- [구조]: 검색 의도(AEO/SEO)를 충족하는 논리적인 흐름으로 자유롭게 구성`;
     }
 
-    // 지식베이스에서 제목 우수사례 목록 조합
-    const titleBestPractices = knowledge.titleBestPractices.join('\n    ');
+    // 지식베이스에서 제목 작성 가이드라인 조합
+    const tg = knowledge.titleGuidelines;
+    const titleGuidelinesText = `
+       - [키워드 배치 원칙]
+         ${tg.keywordRules.join('\n         ')}
+       - [좋은 예]
+         ${tg.goodExamples.map((ex) => `· ${ex}`).join('\n         ')}
+       - [나쁜 예]
+         ${tg.badExamples.map((ex) => `· "${ex.title}" (이유: ${ex.reason})`).join('\n         ')}
+       - [자주 사용하는 제목 유형]
+         ${tg.titleTypes.map((t) => `· ${t}`).join('\n         ')}
+       - ${tg.instruction}`;
+
 
     // 지식베이스에서 카테고리에 맞는 bestPractices 레퍼런스 선택 (선택적 매핑)
     const refMap = {
@@ -76,8 +87,10 @@ export default async function handler(req, res) {
     1. [출력 형식]: ${rules.outputFormat}
 
     2. [제목(H1) 작성 규칙 - 매우 중요!]:
-       - 다음 제공된 우수 게시물 제목들을 철저히 분석하고 모방하세요:
-       ${titleBestPractices}
+       - [사용자가 입력한 제목 초안]: "${title}"
+       - 위 제목 초안에 담긴 핵심 소재(매장명, 핵심 서비스/기능, 강조하고자 하는 포인트)는 절대 누락하지 말고 유지하세요.
+       - 단, 제목의 문장 구조나 표현 방식은 아래 [제목 작성 가이드라인]에 따라 검색 노출에 더 유리한 형태로 개선/재구성하세요. 초안을 그대로 복사하지 말고, 가이드라인에 맞춰 다듬은 결과를 출력하세요.
+       ${titleGuidelinesText}
        ${rules.titleRule}
 
     3. [디자인 강조 및 문단 구조]: ${rules.designAndStructure}
@@ -104,7 +117,9 @@ export default async function handler(req, res) {
       },
     }));
 
-    const result = await model.generateContent([systemPrompt, ...imageParts]);
+    const userInstruction = `제목 초안: ${title}\n\n위 제목 초안과 첨부된 이미지들을 참고하여, 시스템 프롬프트의 규칙에 맞는 HTML 블로그 콘텐츠를 작성해주세요.`;
+
+    const result = await model.generateContent([systemPrompt, userInstruction, ...imageParts]);
     const responseText = result.response.text();
     const cleanHtml = responseText.replace(/```html/g, '').replace(/```/g, '').trim();
 
