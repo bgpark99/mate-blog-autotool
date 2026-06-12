@@ -41,4 +41,317 @@
           
           <div>
             <label class="block text-sm font-bold text-[#434343] mb-3">1. 게시판 카테고리</label>
-            <div class="grid grid-cols-2 sm:grid-cols
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <label class="border border-[#DADADA] rounded-xl p-4 flex flex-col items-center gap-2 cursor-pointer hover:bg-gray-50 transition-colors">
+                <input type="radio" name="category" value="도입사례" checked class="text-[#171717] focus:ring-[#FCF56A] w-5 h-5"> 
+                <span class="text-sm font-bold">도입 사례</span>
+              </label>
+              <label class="border border-[#DADADA] rounded-xl p-4 flex flex-col items-center gap-2 cursor-pointer hover:bg-gray-50 transition-colors">
+                <input type="radio" name="category" value="메이트소식" class="text-[#171717] focus:ring-[#FCF56A] w-5 h-5"> 
+                <span class="text-sm font-bold">메이트 소식</span>
+              </label>
+              <label class="border border-[#DADADA] rounded-xl p-4 flex flex-col items-center gap-2 cursor-pointer hover:bg-gray-50 transition-colors">
+                <input type="radio" name="category" value="메이트TV" class="text-[#171717] focus:ring-[#FCF56A] w-5 h-5"> 
+                <span class="text-sm font-bold">메이트 TV</span>
+              </label>
+              <label class="border border-[#DADADA] rounded-xl p-4 flex flex-col items-center gap-2 cursor-pointer hover:bg-gray-50 transition-colors">
+                <input type="radio" name="category" value="기타" class="text-[#171717] focus:ring-[#FCF56A] w-5 h-5"> 
+                <span class="text-sm font-bold">기타 (범용)</span>
+              </label>
+            </div>
+          </div>
+
+          <div>
+            <label for="title" class="block text-sm font-bold text-[#434343] mb-2">2. 콘텐츠 제목 초안 <span class="text-xs font-normal text-gray-500 ml-2">AI가 AEO/SEO에 맞춰 더 멋지게 다듬어 줍니다.</span></label>
+            <input type="text" id="title" required placeholder="예: 강남 피자 맛집 OOO의 메이트 QR오더 도입 후기" 
+              class="w-full border border-[#DADADA] bg-gray-50 rounded-lg p-4 text-sm focus:bg-white focus:ring-2 focus:ring-[#FCF56A] focus:border-[#FCF56A] outline-none transition-all">
+          </div>
+
+          <div>
+            <label for="additionalRequests" class="block text-sm font-bold text-[#434343] mb-2">3. 추가 정보 입력 <span class="text-xs font-normal text-gray-500 ml-2">콘텐츠 방향성, 수치, 강조할 문구 등</span></label>
+            <textarea id="additionalRequests" rows="5" required placeholder="예: 매장명, 사장님과의 인터뷰 내용, 어떤 부분을 강조했으면 좋겠는지, 꼭 들어가야 하는 문구나 내용 등" 
+              class="w-full border border-[#DADADA] bg-gray-50 rounded-lg p-4 text-sm focus:bg-white focus:ring-2 focus:ring-[#FCF56A] focus:border-[#FCF56A] outline-none transition-all"></textarea>
+          </div>
+
+          <div>
+            <label class="block text-sm font-bold text-[#434343] mb-2">4. 이미지 및 하단 CTA 버튼 업로드 <span class="text-xs font-normal text-gray-500 ml-2">AI가 맥락에 맞춰 자유롭게 배치합니다.</span></label>
+            <div class="border-2 border-dashed border-[#DADADA] rounded-xl p-6 bg-gray-50 hover:bg-gray-100 transition-colors text-center relative">
+              <input type="file" id="imageInput" multiple accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+              <div class="flex flex-col items-center justify-center space-y-2">
+                <span class="text-3xl">📸</span>
+                <p class="text-sm font-bold text-[#434343]">여기를 클릭하거나 이미지를 드래그 앤 드롭 하세요.</p>
+                <p class="text-xs text-gray-500">실사 이미지 및 상담 버튼 배너 포함 가능</p>
+              </div>
+            </div>
+            
+            <div id="previewContainer" class="flex flex-wrap gap-4 mt-4 p-4 bg-white rounded-lg min-h-[100px] border border-[#DADADA]">
+              <p class="text-xs text-gray-400 w-full text-center my-auto" id="previewPlaceholder">선택된 이미지가 없습니다.</p>
+            </div>
+          </div>
+
+          <button type="submit" id="submitBtn" class="w-full bg-[#171717] hover:bg-[#333333] text-[#FCF56A] font-extrabold py-4 px-4 rounded-xl transition-colors shadow-lg text-lg flex justify-center items-center gap-2">
+            ✨ AI 최적화 콘텐츠 생성 시작
+          </button>
+        </form>
+      </div>
+
+      <div id="loading" class="hidden bg-white rounded-2xl shadow-sm border border-[#DADADA] p-10 mb-8 text-center">
+        <div class="mb-6">
+          <img src="/mate-symbol.png" alt="loading" class="w-12 h-12 mx-auto animate-bounce">
+        </div>
+        <h3 id="loadingTitle" class="text-xl font-extrabold text-[#171717] mb-2">마법을 부리는 중입니다...</h3>
+        <p id="loadingDesc" class="text-sm text-gray-500 mb-8">잠시만 기다려주세요. 약 20초 정도 소요됩니다.</p>
+        
+        <div class="w-full bg-gray-200 rounded-full h-3 mb-2 overflow-hidden">
+          <div id="progressBar" class="bg-[#FCF56A] h-3 rounded-full transition-all duration-300 ease-out" style="width: 0%"></div>
+        </div>
+        <p id="loadingStatusText" class="text-xs font-bold text-[#434343] text-right">0%</p>
+      </div>
+
+      <div id="resultArea" class="hidden bg-white rounded-2xl shadow-sm border border-[#DADADA] p-8">
+        <div class="flex justify-between items-center mb-6 pb-4 border-b border-[#DADADA]">
+          <div class="flex gap-2 bg-[#EEEEEE] p-1.5 rounded-lg">
+            <button id="tabPreview" class="px-5 py-2 text-sm font-bold rounded-md bg-white shadow-sm text-[#171717] transition-all">결과 미리보기</button>
+            <button id="tabSource" class="px-5 py-2 text-sm font-bold rounded-md text-[#434343] hover:text-[#171717] transition-all">HTML 소스코드</button>
+          </div>
+          <button id="copyBtn" class="bg-[#FCF56A] hover:bg-[#eade58] text-[#171717] text-xs font-extrabold py-2.5 px-5 rounded-lg transition-colors shadow-sm flex items-center gap-2">
+            📋 코드 복사하기
+          </button>
+        </div>
+
+        <div id="contentPreview" class="prose max-w-none border border-[#DADADA] rounded-xl p-8 bg-gray-50 min-h-[400px]"></div>
+        <textarea id="contentSource" readonly class="hidden w-full font-mono text-sm border border-[#DADADA] rounded-xl p-8 bg-gray-900 text-green-400 min-h-[400px] outline-none"></textarea>
+
+        <div class="flex gap-4 mt-8 pt-8 border-t border-[#DADADA]">
+          <button id="regenerateBtn" type="button" class="flex-1 bg-white border border-[#DADADA] hover:bg-gray-50 text-[#171717] font-bold py-4 px-4 rounded-xl transition-colors shadow-sm">
+            🔄 다른 버전으로 생성하기
+          </button>
+          <button id="resetBtn" type="button" class="flex-1 bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 font-bold py-4 px-4 rounded-xl transition-colors shadow-sm">
+            🗑️ 모든 정보 초기화 (새로 만들기)
+          </button>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    let selectedImages = [];
+    let compressedImagesData = [];
+
+    const imageInput = document.getElementById('imageInput');
+    const previewContainer = document.getElementById('previewContainer');
+
+    const resizeImage = (file) => {
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = (event) => {
+          const img = new Image();
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            const MAX_WIDTH = 1024;
+            let width = img.width, height = img.height;
+            if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
+            canvas.width = width; canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+            resolve({ data: canvas.toDataURL('image/jpeg', 0.8), mimeType: 'image/jpeg' });
+          };
+          img.onerror = () => {
+            resolve({ data: event.target.result, mimeType: file.type || 'image/jpeg' });
+          };
+          img.src = event.target.result;
+        };
+      });
+    };
+
+    imageInput.addEventListener('change', async (e) => {
+      if (e.target.files.length === 0) return;
+      previewContainer.innerHTML = `<p class="text-sm text-[#171717] bg-[#FCF56A] px-4 py-2 rounded-full font-bold mx-auto my-auto animate-pulse">이미지를 분석하고 최적화하는 중입니다...</p>`;
+      for (let file of e.target.files) {
+        selectedImages.push(file);
+        const compressed = await resizeImage(file);
+        compressedImagesData.push(compressed);
+      }
+      renderPreviews();
+      imageInput.value = "";
+    });
+
+    function renderPreviews() {
+      previewContainer.innerHTML = "";
+      if (compressedImagesData.length === 0) {
+        previewContainer.innerHTML = `<p class="text-xs text-gray-400 w-full text-center my-auto" id="previewPlaceholder">선택된 이미지가 없습니다.</p>`;
+        return;
+      }
+      compressedImagesData.forEach((img, index) => {
+        const div = document.createElement('div');
+        div.className = "relative w-24 h-24 shadow-sm rounded-lg border border-[#DADADA] bg-white p-1";
+        div.innerHTML = `
+          <img src="${img.data}" class="w-full h-full object-cover rounded-md bg-gray-100">
+          <button type="button" onclick="removeImage(${index})" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold hover:bg-red-600 shadow-md transition-colors z-20">X</button>
+        `;
+        previewContainer.appendChild(div);
+      });
+    }
+
+    window.removeImage = function(index) {
+      selectedImages.splice(index, 1);
+      compressedImagesData.splice(index, 1);
+      renderPreviews();
+    };
+
+    // 로딩 진행바 제어
+    let progressInterval;
+    const loadingTexts = [
+      "이미지를 분석하고 카테고리를 파악하는 중입니다...",
+      "MATE 지식 베이스 문서를 읽고 있습니다...",
+      "AEO 및 SEO 최적화 문장을 작성하는 중입니다...",
+      "하단 버튼 및 내부 링크를 배치하고 있습니다...",
+      "거의 다 완성되었습니다! 최종 검수 중..."
+    ];
+
+    function startLoadingAnimation() {
+      const loadingEl = document.getElementById('loading');
+      const progressBar = document.getElementById('progressBar');
+      const statusText = document.getElementById('loadingStatusText');
+      const descText = document.getElementById('loadingDesc');
+      
+      loadingEl.classList.remove('hidden');
+      loadingEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      
+      let progress = 0;
+      progressBar.style.width = '0%';
+      statusText.innerText = '0%';
+      
+      progressInterval = setInterval(() => {
+        progress += (100 - progress) * 0.05; 
+        if (progress > 95) progress = 95;
+        
+        progressBar.style.width = `${progress}%`;
+        statusText.innerText = `${Math.floor(progress)}%`;
+
+        let textIndex = Math.floor(progress / 20);
+        if(textIndex >= loadingTexts.length) textIndex = loadingTexts.length - 1;
+        descText.innerText = loadingTexts[textIndex];
+        
+      }, 500);
+    }
+
+    function stopLoadingAnimation() {
+      clearInterval(progressInterval);
+      const progressBar = document.getElementById('progressBar');
+      const statusText = document.getElementById('loadingStatusText');
+      
+      progressBar.style.width = '100%';
+      statusText.innerText = '100%';
+      
+      setTimeout(() => {
+        document.getElementById('loading').classList.add('hidden');
+      }, 600);
+    }
+
+    const form = document.getElementById('generatorForm');
+    let finalHtmlSource = "";
+
+    async function generateContent() {
+      document.getElementById('submitBtn').disabled = true;
+      document.getElementById('resultArea').classList.add('hidden');
+
+      startLoadingAnimation();
+
+      const category = document.querySelector('input[name="category"]:checked').value;
+      const title = document.getElementById('title').value;
+      const additionalRequests = document.getElementById('additionalRequests').value;
+
+      try {
+        const response = await fetch('/api/generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ category, title, additionalRequests, images: compressedImagesData })
+        });
+
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error);
+
+        let aiHtml = result.html;
+        let previewHtml = aiHtml;
+        let sourceCodeHtml = aiHtml;
+
+        compressedImagesData.forEach((img, index) => {
+          const targetStr = `IMAGE_${index}`;
+          previewHtml = previewHtml.replace(targetStr, img.data);
+          sourceCodeHtml = sourceCodeHtml.replace(targetStr, `[아임웹 에디터에서 ${index + 1}번째 이미지 원본을 직접 업로드해주세요]`);
+        });
+
+        finalHtmlSource = sourceCodeHtml;
+        document.getElementById('contentPreview').innerHTML = previewHtml;
+        document.getElementById('contentSource').value = sourceCodeHtml;
+
+        stopLoadingAnimation();
+        
+        setTimeout(() => {
+          document.getElementById('resultArea').classList.remove('hidden');
+          document.getElementById('resultArea').scrollIntoView({ behavior: 'smooth' });
+        }, 600);
+
+      } catch (error) {
+        clearInterval(progressInterval);
+        alert(error.message);
+        document.getElementById('loading').classList.add('hidden');
+      } finally {
+        document.getElementById('submitBtn').disabled = false;
+      }
+    }
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      generateContent();
+    });
+
+    document.getElementById('regenerateBtn').addEventListener('click', () => {
+      const isConfirmed = confirm("정말 다른 버전으로 다시 생성하시겠습니까?\n(기존에 생성된 결과물은 사라집니다.)");
+      if (isConfirmed) {
+        generateContent();
+      }
+    });
+
+    document.getElementById('resetBtn').addEventListener('click', () => {
+      const isConfirmed = confirm("정말 초기화하시겠습니까?\n(입력된 정보와 이미지가 모두 지워집니다.)");
+      if (isConfirmed) {
+        form.reset(); 
+        selectedImages = []; 
+        compressedImagesData = []; 
+        renderPreviews(); 
+        document.getElementById('resultArea').classList.add('hidden'); 
+        window.scrollTo({ top: 0, behavior: 'smooth' }); 
+      }
+    });
+
+    const tabPreview = document.getElementById('tabPreview');
+    const tabSource = document.getElementById('tabSource');
+    const contentPreview = document.getElementById('contentPreview');
+    const contentSource = document.getElementById('contentSource');
+
+    tabPreview.addEventListener('click', () => {
+      tabPreview.className = "px-5 py-2 text-sm font-bold rounded-md bg-white shadow-sm text-[#171717] transition-all";
+      tabSource.className = "px-5 py-2 text-sm font-bold rounded-md text-[#434343] hover:text-[#171717] transition-all";
+      contentPreview.classList.remove('hidden');
+      contentSource.classList.add('hidden');
+    });
+
+    tabSource.addEventListener('click', () => {
+      tabSource.className = "px-5 py-2 text-sm font-bold rounded-md bg-white shadow-sm text-[#171717] transition-all";
+      tabPreview.className = "px-5 py-2 text-sm font-bold rounded-md text-[#434343] hover:text-[#171717] transition-all";
+      contentSource.className = "px-5 py-2 text-sm font-bold rounded-md bg-gray-900 text-green-400 min-h-[400px] w-full font-mono border border-[#DADADA] rounded-xl p-8 outline-none";
+      contentSource.classList.remove('hidden');
+      contentPreview.classList.add('hidden');
+    });
+
+    document.getElementById('copyBtn').addEventListener('click', () => {
+      navigator.clipboard.writeText(finalHtmlSource).then(() => {
+        alert("코드가 복사되었습니다! 아임웹 소스코드(HTML) 모드에 붙여넣으시고, 안내된 위치에 이미지를 업로드하세요.");
+      });
+    });
+  </script>
+</body>
+</html>
