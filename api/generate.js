@@ -9,6 +9,17 @@ export const config = {
   api: { bodyParser: { sizeLimit: '10mb' } },
 };
 
+// 지식베이스는 콜드 스타트 시 한 번만 읽어서 모듈 스코프에 캐싱
+let mateKnowledge = null;
+function loadKnowledge() {
+  if (!mateKnowledge) {
+    const knowledgePath = path.join(process.cwd(), 'api', 'mate-knowledge.json');
+    const knowledgeRaw = fs.readFileSync(knowledgePath, 'utf8');
+    mateKnowledge = JSON.parse(knowledgeRaw);
+  }
+  return mateKnowledge;
+}
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method Not Allowed' });
 
@@ -18,9 +29,7 @@ export default async function handler(req, res) {
   if (!apiKey) return res.status(500).json({ error: 'GEMINI_API_KEY가 설정되지 않았습니다.' });
 
   try {
-    const knowledgePath = path.join(process.cwd(), 'api', 'mate-knowledge.json');
-    const knowledgeRaw = fs.readFileSync(knowledgePath, 'utf8');
-    const mateKnowledge = JSON.parse(knowledgeRaw);
+    const knowledge = loadKnowledge();
 
     const ai = new GoogleGenerativeAI(apiKey);
     const model = ai.getGenerativeModel({ model: 'gemini-3.5-flash' });
@@ -36,29 +45,21 @@ export default async function handler(req, res) {
       categoryPrompt = `- [콘셉트]: 특정 형식에 얽매이지 않는 범용적이고 자유로운 주제의 블로그 콘텐츠\n- [구조]: 검색 의도(AEO/SEO)를 충족하는 논리적인 흐름으로 자유롭게 구성`;
     }
 
-    // 🌟 대표님이 제공한 20개의 우수 제목 데이터 삽입
-    const titleBestPractices = `
-    QR오더 솔직후기: 성수닭꼬치 사장님이 메이트를 추천하는 이유
-    안암역 맛집 비테라스는 어떻게 테이블오더로 인건비를 줄였을까?
-    "이자카야에 QR오더는 안 어울린다?" 일상동경의 반전 사용 후기
-    메이트 QR오더 사용 후기: 17년 전통 피자 맛집의 디지털 전환기
-    일미리금계찜닭이 메이트 QR오더를 선택한 이유 5가지
-    디저트카페 창업 필수템! QR오더 설치부터 활용까지 완벽 가이드
-    샐러디아 양재점의 주문 속도가 2배 빨라진 비결은 '이것'
-    태블릿오더 매장 효율 가이드: 인천 밀겨울의 인건비 절약 사례
-    태블릿오더 도입 시 고려할 점, 7년 차 닭발 맛집의 솔직한 답변
-    웨이팅 맛집 카페동이의 선택: 일반 진동벨 vs 메이트 태블릿오더
-    QR오더 점심시간 활용법: 아사이퍼플 삼성점의 주문 대기 해소법
-    테이블오더 설치가 인테리어를 해칠까? 이태원 웍스터의 반전 사례
-    뮤지컬펍 송스루가 QR오더와 테이블오더를 동시에 도입한 이유
-    대형 매장 운영 효율 높이는 QR오더, 한강 선착장 BBQ 설치 사례
-    메이트 QR오더로 현지 감성을? 츠쿠요미 군자점의 공간 활용 전략
-    야외 테이블 QR오더 설치 가능할까? 숙성회136 매장 사례
-    테이블오더 50대 설치 사례: 메이트의 대형 매장 도입기
-    국밥집 회전율 전쟁: 일반 주문 vs 메이트 테이블오더 승자는?
-    맹호수제돈까스가 메이트 테이블오더로 주문 혁신을 이룬 방법
-    태블릿오더로 주문부터 픽업까지! 셀러브리티버거의 원스톱 운영 전략
-    `;
+    // 지식베이스에서 제목 우수사례 목록 조합
+    const titleBestPractices = knowledge.titleBestPractices.join('\n    ');
+
+    // 지식베이스에서 카테고리에 맞는 bestPractices 레퍼런스 선택 (선택적 매핑)
+    const refMap = {
+      '도입사례': 'ref_01',
+      '메이트소식': 'ref_02',
+      '메이트TV': 'ref_03',
+    };
+    const matchedRef = knowledge.bestPractices.find((r) => r.id === refMap[category]);
+    const referenceContent = matchedRef
+      ? `\n[참고할 ${category} 카테고리 작성 레퍼런스]\n${matchedRef.content}`
+      : '';
+
+    const rules = knowledge.writingRules;
 
     // 🌟 5번 항목 집중 수정: 이미지 태그(src)에 엄격한 규칙 부여
     const systemPrompt = `
@@ -66,43 +67,33 @@ export default async function handler(req, res) {
     아래 [MATE 지식 베이스]를 숙지하고 아임웹 블로그용 최적화 콘텐츠를 HTML로 작성하세요.
 
     [MATE 지식 베이스]
-    ${mateKnowledge.brandOverview}
-    - 톤앤매너: ${mateKnowledge.toneAndManner}
-    - 발행 규칙: ${mateKnowledge.publishingRules.join(' ')}
+    ${knowledge.brandOverview}
+    - 톤앤매너: ${knowledge.toneAndManner}
+    - 발행 규칙: ${knowledge.publishingRules.join(' ')}
+    ${referenceContent}
 
     [작성 필수 규칙]
-    1. 반드시 <body> 태그 내부의 순수 HTML 요소(<h1>, <h2>, <h3>, <p>, <ul> 등)만 출력하세요.
-    
+    1. [출력 형식]: ${rules.outputFormat}
+
     2. [제목(H1) 작성 규칙 - 매우 중요!]:
-       - 다음 제공된 20개의 실제 우수 게시물 제목을 철저히 분석하고 모방하세요:
+       - 다음 제공된 우수 게시물 제목들을 철저히 분석하고 모방하세요:
        ${titleBestPractices}
-       - 🚨 '[매장 혁신]', '[운영 꿀팁]' 같이 검색자가 절대 검색하지 않을 무의미한 대괄호 수식어는 **절대 사용하지 마세요.**
-       - 🚨 사용자가 입력한 초안에서 가장 중요한 '핵심 서비스 키워드(예: 태블릿오더, 테이블오더, QR오더, 포스)'와 '매장명'은 제목에 **무조건 포함**시켜야 합니다. 누락하면 안 됩니다.
-    
-    3. [디자인 강조 및 문단 구조]:
-       - 본문 작성 시 H2, H3, H4 태그를 활용해 단락을 명확히 나누세요.
-       - 중요한 문장이나 핵심 기대효과는 <strong> 태그나 <span style="background-color: #FCF56A;"> 등을 적극 활용해 시각적으로 강조하세요.
+       ${rules.titleRule}
 
-    4. [동적 AEO 맞춤 Q&A 생성]: 지식 베이스의 FAQ를 복붙하지 마세요. 현재 글의 핵심 주제(예: 테이블오더)에 맞춰 실제 사장님들이 네이버/구글에 검색할 법한 실질적인 질문과 답변 구조를 본문 중간에 창작하세요.
-    
-    5. [이미지 배치 및 하단 CTA 버튼 처리 - 엄격한 규칙!]: 
+    3. [디자인 강조 및 문단 구조]: ${rules.designAndStructure}
+
+    4. [동적 AEO 맞춤 Q&A 생성]: ${rules.dynamicQA}
+
+    5. [이미지 배치 및 하단 CTA 버튼 처리 - 엄격한 규칙!]:
        - 총 ${images.length}장의 이미지가 업로드되었습니다.
-       - 🚨 모든 이미지의 src 속성은 무조건 'IMAGE_0', 'IMAGE_1', 'IMAGE_2' 처럼 대문자 'IMAGE_'와 숫자 조합으로만 작성하세요. (절대 .jpg, .png 확장자나 다른 단어를 붙이지 마세요!)
-       - 🚨 '도입 상담 받기', '더 알아보기' 등의 버튼 이미지는 글의 맨 마지막(최하단)에 배치하되, **절대 이미지끼리 연달아 붙이지 마세요.**
-       - 🚨 반드시 아래와 같이 [텍스트 -> 버튼 -> 텍스트 -> 버튼] 형태의 구조를 엄격하게 지키세요 (X와 Y에는 알맞은 숫자 인덱스 할당):
-         <p>👇 우리 매장 맞춤형 메이트 솔루션 무료 컨설팅 신청하기 👇</p>
-         <img src="IMAGE_X" alt="도입 상담 받기">
-         <br>
-         <p>👇 메이트 솔루션의 더 많은 장점과 도입 사례 확인하기 👇</p>
-         <img src="IMAGE_Y" alt="더 알아보기">
-       - 유도 텍스트는 버튼의 목적(상담 신청인지, 정보 더보기인지)에 맞게 정확히 구분해서 작성해야 합니다.
+       ${rules.imageAndCtaPlacement}
 
-    6. [엄격한 Alt 태그]: '이미지', '사진', '버튼' 이라는 단어는 절대 포함하지 마세요. (예: "카운터에 설치된 메이트 포스기", "도입 상담 받기", "더 알아보기")
+    6. [엄격한 Alt 태그]: ${rules.altTagRule}
 
-    7. [내부 링크]: <p>👉 <a href="#" target="_blank">[여기에 매력적인 클릭 유도 문구 작성]</a></p> 형태로 명시하세요.
-    
+    7. [내부 링크]: ${rules.internalLinkRule}
+
     8. [추가 정보 반영]: 다음 요청사항을 완벽히 반영하세요: "${additionalRequests || '없음'}"
-    
+
     9. [카테고리 지침]: ${categoryPrompt}
     `;
 
