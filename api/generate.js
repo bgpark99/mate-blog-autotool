@@ -2,7 +2,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import fs from 'fs';
 import path from 'path';
 
-// Vercel 서버의 강제 종료 시간을 60초로 연장
+// Vercel 타임아웃 제한 60초 설정
 export const maxDuration = 60;
 
 export const config = {
@@ -24,7 +24,6 @@ export default async function handler(req, res) {
 
     const ai = new GoogleGenerativeAI(apiKey);
     
-    // 🌟 오류 해결: 무료 API 키로 접근 가능한 최고 성능 모델로 변경
     const model = ai.getGenerativeModel({ model: 'gemini-3.5-flash' });
 
     let categoryPrompt = '';
@@ -38,6 +37,7 @@ export default async function handler(req, res) {
       categoryPrompt = `- [콘셉트]: 특정 형식에 얽매이지 않는 범용적이고 자유로운 주제의 블로그 콘텐츠\n- [구조]: 검색 의도(AEO/SEO)를 충족하는 논리적인 흐름으로 자유롭게 구성`;
     }
 
+    // 🌟 대표님의 3가지 피드백을 강력한 규칙으로 반영한 프롬프트
     const systemPrompt = `
     당신은 매장 솔루션 브랜드 'MATE(메이트)'의 수석 브랜드 마케터이자 SEO/AEO 전문가입니다.
     아래 [MATE 지식 베이스]를 숙지하고 아임웹 블로그용 최적화 콘텐츠를 HTML로 작성하세요.
@@ -49,11 +49,24 @@ export default async function handler(req, res) {
 
     [작성 필수 규칙]
     1. 반드시 <body> 태그 내부의 순수 HTML 요소(<h2>, <p>, <ul> 등)만 출력하세요.
-    2. [제목 개선]: 사용자가 입력한 초안 제목 "${title}" 을 분석하여, 클릭률(CTR)과 SEO에 더 최적화된 매력적인 제목으로 새롭게 제안하고, 이를 글 최상단 <h1> 태그로 작성하세요.
-    3. [이미지 삽입]: 사용자가 총 ${images.length}장의 이미지를 업로드했습니다. 업로드된 이미지들의 내용을 시각적으로 분석한 뒤, 글의 컨셉과 문맥상 가장 적절한 위치에 각 이미지를 배치하세요. (업로드된 순서에 얽매일 필요 없이 AI가 스스로 최적의 순서를 결정합니다.) 삽입 시 <img src="IMAGE_INDEX" alt="키워드가 포함된 상세한 상황 설명"> 형태로 삽입하세요. (INDEX는 0부터 ${images.length - 1}까지의 번호입니다.)
-    4. [내부 링크]: 내부 링크나 다른 서비스로 유도할 적절한 위치에 <p>👉 <a href="#" target="_blank">[여기에 매력적인 클릭 유도 문구 작성]</a></p> 형태로 명시하세요.
-    5. [추가 정보 반영]: 다음 사용자의 추가 요청 및 세부 정보를 콘텐츠 전체 방향성에 완벽히 반영하세요: "${additionalRequests || '없음'}"
-    6. [카테고리 지침]: ${categoryPrompt}
+    
+    2. [동적 AEO 맞춤 Q&A 생성 (중요)]: 지식 베이스에 있는 기본 FAQ를 단순히 복사 붙여넣기 하지 마세요. 이번 콘텐츠의 핵심 주제(예: 테이블오더, QR오더 등)를 파악하여, **실제 외식업 사장님들이 네이버/구글에 검색할 법한 검색 의도 기반의 실질적인 질문과 답변 1~2개를 스스로 창작**하여 본문 중간에 자연스럽게 삽입하세요.
+    
+    3. [이미지 배치 및 하단 CTA 버튼 처리 (중요)]: 
+       - 총 ${images.length}장의 이미지가 업로드되었습니다. 각 이미지의 시각적 요소를 분석하여 본문 문맥에 맞게 <img src="IMAGE_INDEX" alt="..."> 형태로 배치하세요. (INDEX는 0부터 ${images.length - 1}까지입니다.)
+       - 🚨 단, 업로드된 이미지 중 '도입 상담 받기', '더 알아보기' 등의 텍스트가 포함된 **'버튼 형태의 이미지'를 식별해 내어, 이 버튼 이미지들은 무조건 글의 맨 마지막(최하단)에 배치**하세요.
+       - 하단에 버튼 이미지가 2개 이상일 경우, 중간에 다른 본문 내용이 들어가지 않도록 연속으로 배치하세요.
+       - 각 버튼 이미지 바로 위에는 해당 버튼을 설명하는 짧은 유도 텍스트(예: '<p>👇 빠르고 친절한 1:1 상담 👇</p>', '<p>👇 메이트 솔루션 장점 더보기 👇</p>')만 삽입하세요.
+
+    4. [엄격한 Alt 태그 작성 규칙]: 이미지의 alt 속성을 작성할 때 **'이미지', '사진', '버튼' 이라는 단어는 절대 포함하지 마세요.** 오직 상황이나 객체 자체만 명사형으로 간결하게 묘사하세요. 
+       - ❌ 나쁜 예: "메이트 포스기 사진", "도입 상담 받기 버튼 이미지"
+       - ⭕ 좋은 예: "카운터에 설치된 메이트 포스기", "도입 상담 받기"
+
+    5. [내부 링크]: 내부 링크 유도 문구는 <p>👉 <a href="#" target="_blank">[여기에 매력적인 클릭 유도 문구 작성]</a></p> 형태로 명시하세요.
+    
+    6. [추가 정보 반영]: 다음 요청사항을 콘텐츠에 완벽히 반영하세요: "${additionalRequests || '없음'}"
+    
+    7. [카테고리 지침]: ${categoryPrompt}
     `;
 
     const imageParts = images.map((img) => ({
