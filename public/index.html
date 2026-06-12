@@ -6,7 +6,9 @@
   <meta name="robots" content="noindex, nofollow">
   <title>MATE Creator</title>
   <link rel="icon" type="image/png" href="/mate-favicon.png">
-  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 </head>
 <body class="bg-[#EEEEEE] text-[#171717] font-sans h-screen flex overflow-hidden">
 
@@ -19,7 +21,7 @@
       <a href="#" class="flex items-center gap-3 px-4 py-3 bg-[#FCF56A] text-[#171717] font-bold rounded-lg shadow-sm">
         📝 <span>블로그 콘텐츠</span>
       </a>
-      </nav>
+    </nav>
     <div class="p-6 border-t border-gray-800 text-xs text-gray-500 font-medium">
       Copyright © 2026 MATE. All rights reserved.
     </div>
@@ -100,7 +102,7 @@
           <img src="/mate-symbol.png" alt="loading" class="w-12 h-12 mx-auto animate-bounce">
         </div>
         <h3 id="loadingTitle" class="text-xl font-extrabold text-[#171717] mb-2">마법을 부리는 중입니다...</h3>
-        <p id="loadingDesc" class="text-sm text-gray-500 mb-8">잠시만 기다려주세요. 약 20초 정도 소요됩니다.</p>
+        <p id="loadingDesc" class="text-sm text-gray-500 mb-8">잠시만 기다려주세요. 약 20~30초 정도 소요됩니다.</p>
         
         <div class="w-full bg-gray-200 rounded-full h-3 mb-2 overflow-hidden">
           <div id="progressBar" class="bg-[#FCF56A] h-3 rounded-full transition-all duration-300 ease-out" style="width: 0%"></div>
@@ -108,21 +110,32 @@
         <p id="loadingStatusText" class="text-xs font-bold text-[#434343] text-right">0%</p>
       </div>
 
-      <div id="resultArea" class="hidden bg-white rounded-2xl shadow-sm border border-[#DADADA] p-8">
-        <div class="flex justify-between items-center mb-6 pb-4 border-b border-[#DADADA]">
-          <div class="flex gap-2 bg-[#EEEEEE] p-1.5 rounded-lg">
-            <button id="tabPreview" class="px-5 py-2 text-sm font-bold rounded-md bg-white shadow-sm text-[#171717] transition-all">결과 미리보기</button>
-            <button id="tabSource" class="px-5 py-2 text-sm font-bold rounded-md text-[#434343] hover:text-[#171717] transition-all">HTML 소스코드</button>
-          </div>
-          <button id="copyBtn" class="bg-[#FCF56A] hover:bg-[#eade58] text-[#171717] text-xs font-extrabold py-2.5 px-5 rounded-lg transition-colors shadow-sm flex items-center gap-2">
-            📋 코드 복사하기
-          </button>
+      <div id="resultArea" class="hidden">
+        
+        <div class="mb-6 bg-white rounded-2xl shadow-sm border border-[#DADADA] p-6 border-l-8 border-l-[#FCF56A]">
+          <p class="text-xs font-bold text-gray-400 mb-2">💡 제안된 콘텐츠 제목 (아임웹 제목란에 복사)</p>
+          <h2 id="generatedTitle" class="text-2xl font-extrabold text-[#171717]"></h2>
         </div>
 
-        <div id="contentPreview" class="prose max-w-none border border-[#DADADA] rounded-xl p-8 bg-gray-50 min-h-[400px]"></div>
-        <textarea id="contentSource" readonly class="hidden w-full font-mono text-sm border border-[#DADADA] rounded-xl p-8 bg-gray-900 text-green-400 min-h-[400px] outline-none"></textarea>
+        <div class="bg-white rounded-2xl shadow-sm border border-[#DADADA] overflow-hidden">
+          <div class="flex justify-between items-center p-6 border-b border-[#DADADA] bg-gray-50">
+            <div class="flex gap-2 p-1 bg-[#DADADA] rounded-lg">
+              <button id="tabPreview" class="px-5 py-2 text-sm font-bold rounded-md bg-white shadow-sm text-[#171717] transition-all">결과 미리보기</button>
+              <button id="tabSource" class="px-5 py-2 text-sm font-bold rounded-md text-[#434343] hover:text-[#171717] transition-all">HTML 소스코드</button>
+            </div>
+            <button id="copyBtn" class="bg-[#171717] hover:bg-[#333333] text-[#FCF56A] text-xs font-extrabold py-2.5 px-5 rounded-lg transition-colors shadow-sm flex items-center gap-2">
+              📋 아임웹용 소스 복사
+            </button>
+          </div>
 
-        <div class="flex gap-4 mt-8 pt-8 border-t border-[#DADADA]">
+          <div id="contentPreview" class="prose prose-blue max-w-none p-8 bg-white min-h-[400px]"></div>
+          
+          <div id="contentSourceWrapper" class="hidden min-h-[400px] m-0 bg-[#0d1117]">
+            <pre class="m-0 p-8 text-sm"><code id="contentSource" class="language-html"></code></pre>
+          </div>
+        </div>
+
+        <div class="flex gap-4 mt-8">
           <button id="regenerateBtn" type="button" class="flex-1 bg-white border border-[#DADADA] hover:bg-gray-50 text-[#171717] font-bold py-4 px-4 rounded-xl transition-colors shadow-sm">
             🔄 다른 버전으로 생성하기
           </button>
@@ -200,7 +213,6 @@
       renderPreviews();
     };
 
-    // 로딩 진행바 제어
     let progressInterval;
     const loadingTexts = [
       "이미지를 분석하고 카테고리를 파악하는 중입니다...",
@@ -226,28 +238,20 @@
       progressInterval = setInterval(() => {
         progress += (100 - progress) * 0.05; 
         if (progress > 95) progress = 95;
-        
         progressBar.style.width = `${progress}%`;
         statusText.innerText = `${Math.floor(progress)}%`;
 
         let textIndex = Math.floor(progress / 20);
         if(textIndex >= loadingTexts.length) textIndex = loadingTexts.length - 1;
         descText.innerText = loadingTexts[textIndex];
-        
       }, 500);
     }
 
     function stopLoadingAnimation() {
       clearInterval(progressInterval);
-      const progressBar = document.getElementById('progressBar');
-      const statusText = document.getElementById('loadingStatusText');
-      
-      progressBar.style.width = '100%';
-      statusText.innerText = '100%';
-      
-      setTimeout(() => {
-        document.getElementById('loading').classList.add('hidden');
-      }, 600);
+      document.getElementById('progressBar').style.width = '100%';
+      document.getElementById('loadingStatusText').innerText = '100%';
+      setTimeout(() => { document.getElementById('loading').classList.add('hidden'); }, 600);
     }
 
     const form = document.getElementById('generatorForm');
@@ -274,18 +278,41 @@
         if (!response.ok) throw new Error(result.error);
 
         let aiHtml = result.html;
-        let previewHtml = aiHtml;
-        let sourceCodeHtml = aiHtml;
+
+        // 🌟 1. 제목(H1) 쏙 뽑아내고 본문에서 삭제하기 로직
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = aiHtml;
+        const h1Element = tempDiv.querySelector('h1');
+        let extractedTitle = "제목이 생성되지 않았습니다.";
+        
+        if (h1Element) {
+          extractedTitle = h1Element.innerHTML;
+          h1Element.remove(); // 아임웹 본문 소스용 임시 DOM에서 h1 태그 자체를 완전 삭제
+        }
+        let bodyHtml = tempDiv.innerHTML;
+
+        // 🌟 2. 엑스박스 방어용 정규식 이미지 치환 로직
+        let previewHtml = bodyHtml;
+        let sourceCodeHtml = bodyHtml;
 
         compressedImagesData.forEach((img, index) => {
-          const targetStr = `IMAGE_${index}`;
-          previewHtml = previewHtml.replace(targetStr, img.data);
-          sourceCodeHtml = sourceCodeHtml.replace(targetStr, `[아임웹 에디터에서 ${index + 1}번째 이미지 원본을 직접 업로드해주세요]`);
+          // AI가 IMAGE_0.png 등으로 확장자를 붙였더라도 안전하게 치환
+          const regex = new RegExp(`IMAGE_${index}[a-zA-Z0-9.]*`, 'g');
+          previewHtml = previewHtml.replace(regex, img.data);
+          sourceCodeHtml = sourceCodeHtml.replace(regex, `[아임웹 에디터에서 ${index + 1}번째 이미지 원본을 직접 업로드해주세요]`);
         });
 
+        // 🌟 3. 화면 렌더링 업데이트
         finalHtmlSource = sourceCodeHtml;
+        document.getElementById('generatedTitle').innerHTML = extractedTitle;
         document.getElementById('contentPreview').innerHTML = previewHtml;
-        document.getElementById('contentSource').value = sourceCodeHtml;
+        
+        // 코드 컬러 하이라이팅 적용
+        const sourceCodeEl = document.getElementById('contentSource');
+        sourceCodeEl.textContent = sourceCodeHtml;
+        // Highlight.js 실행
+        delete sourceCodeEl.dataset.highlighted;
+        hljs.highlightElement(sourceCodeEl);
 
         stopLoadingAnimation();
         
@@ -310,9 +337,7 @@
 
     document.getElementById('regenerateBtn').addEventListener('click', () => {
       const isConfirmed = confirm("정말 다른 버전으로 다시 생성하시겠습니까?\n(기존에 생성된 결과물은 사라집니다.)");
-      if (isConfirmed) {
-        generateContent();
-      }
+      if (isConfirmed) generateContent();
     });
 
     document.getElementById('resetBtn').addEventListener('click', () => {
@@ -330,20 +355,19 @@
     const tabPreview = document.getElementById('tabPreview');
     const tabSource = document.getElementById('tabSource');
     const contentPreview = document.getElementById('contentPreview');
-    const contentSource = document.getElementById('contentSource');
+    const contentSourceWrapper = document.getElementById('contentSourceWrapper');
 
     tabPreview.addEventListener('click', () => {
       tabPreview.className = "px-5 py-2 text-sm font-bold rounded-md bg-white shadow-sm text-[#171717] transition-all";
       tabSource.className = "px-5 py-2 text-sm font-bold rounded-md text-[#434343] hover:text-[#171717] transition-all";
       contentPreview.classList.remove('hidden');
-      contentSource.classList.add('hidden');
+      contentSourceWrapper.classList.add('hidden');
     });
 
     tabSource.addEventListener('click', () => {
-      tabSource.className = "px-5 py-2 text-sm font-bold rounded-md bg-white shadow-sm text-[#171717] transition-all";
+      tabSource.className = "px-5 py-2 text-sm font-bold rounded-md bg-[#DADADA] shadow-sm text-[#171717] transition-all";
       tabPreview.className = "px-5 py-2 text-sm font-bold rounded-md text-[#434343] hover:text-[#171717] transition-all";
-      contentSource.className = "px-5 py-2 text-sm font-bold rounded-md bg-gray-900 text-green-400 min-h-[400px] w-full font-mono border border-[#DADADA] rounded-xl p-8 outline-none";
-      contentSource.classList.remove('hidden');
+      contentSourceWrapper.classList.remove('hidden');
       contentPreview.classList.add('hidden');
     });
 
