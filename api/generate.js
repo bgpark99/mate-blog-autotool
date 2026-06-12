@@ -2,11 +2,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import fs from 'fs';
 import path from 'path';
 
-export const maxDuration = 60;
-
-export const config = {
-  api: { bodyParser: { sizeLimit: '10mb' } },
-};
+// 🌟 Vercel 서버 충돌을 일으키던 불필요한 export 설정(maxDuration, config)을 삭제했습니다.
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method Not Allowed' });
@@ -59,7 +55,6 @@ export default async function handler(req, res) {
     태블릿오더로 주문부터 픽업까지! 셀러브리티버거의 원스톱 운영 전략
     `;
 
-    // 🌟 대표님께서 작성해주신 '우수 콘텐츠 정답지' 추가
     const contentBestPractice = `
     [본문 작성 기준(Gold Standard)] - 이 흐름과 스타일, 태그 계층(H2, H3), 이모지 사용법을 철저히 벤치마킹하세요.
     
